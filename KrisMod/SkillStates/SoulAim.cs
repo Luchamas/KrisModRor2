@@ -65,7 +65,7 @@ namespace KrisMod.SkillStates
 
         private void Throw(Vector3 target)
         {
-            if (tension == null || !tension.TrySpend(KrisConfig.SoulTensionCost.Value))
+            if (tension == null || !tension.TrySpend(KrisTuning.SoulTensionCost))
             {
                 // TP only rises between activation (where TensionSkillDef checked it) and here,
                 // so this is a meter that went missing, not a player who ran short.
@@ -89,7 +89,7 @@ namespace KrisMod.SkillStates
         /// </summary>
         private Vector3 FindTarget(Ray aim)
         {
-            float range = Mathf.Max(5f, KrisConfig.SoulRange.Value);
+            float range = Mathf.Max(5f, KrisTuning.SoulRange);
             int mask = LayerIndex.world.mask | LayerIndex.entityPrecise.mask;
             Vector3 origin = SoulOrigin();
 

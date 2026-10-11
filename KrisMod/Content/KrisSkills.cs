@@ -85,7 +85,7 @@ namespace KrisMod.Content
             // Held, on "Weapon" so it shuts FIGHT out. Cooldown starts when the shield comes down.
             var skill = Create<SkillDef>("KrisDefend", Tokens.SecondaryName, Tokens.SecondaryDescription,
                                          KrisAssets.IconDefend, typeof(KrisDefend), "Weapon");
-            skill.baseRechargeInterval = KrisConfig.DefendCooldown.Value;
+            skill.baseRechargeInterval = KrisTuning.DefendCooldown;
             skill.baseMaxStock = 1;
             skill.interruptPriority = InterruptPriority.Skill;
             skill.isCombatSkill = false;
@@ -100,8 +100,8 @@ namespace KrisMod.Content
             // The aim is on "Weapon" so Kris can walk while aiming; it hands the throw to "Body".
             var skill = Create<TensionSkillDef>("KrisSoul", Tokens.UtilityName, Tokens.UtilityDescription,
                                                 KrisAssets.IconSoul, typeof(SoulAim), "Weapon");
-            skill.requiredTension = KrisConfig.SoulTensionCost.Value;
-            skill.baseRechargeInterval = KrisConfig.SoulCooldown.Value;
+            skill.requiredTension = KrisTuning.SoulTensionCost;
+            skill.baseRechargeInterval = KrisTuning.SoulCooldown;
             skill.baseMaxStock = 1;
             skill.interruptPriority = InterruptPriority.PrioritySkill;
             skill.isCombatSkill = false;
@@ -116,7 +116,7 @@ namespace KrisMod.Content
             // Opening the menu is free; each ACT has its own TP price, checked in the menu.
             var skill = Create<SkillDef>("KrisAct", Tokens.SpecialName, Tokens.SpecialDescription,
                                          KrisAssets.IconAct, typeof(KrisActMenu), "Body");
-            skill.baseRechargeInterval = KrisConfig.ActCooldown.Value;
+            skill.baseRechargeInterval = KrisTuning.ActCooldown;
             skill.baseMaxStock = 1;
             skill.interruptPriority = InterruptPriority.PrioritySkill;
             skill.isCombatSkill = true;

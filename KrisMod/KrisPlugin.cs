@@ -22,7 +22,7 @@ namespace KrisMod
         public const string Author = "deltarune";
         public const string ModName = "KrisMod";
         public const string Guid = "com." + Author + "." + ModName;
-        public const string Version = "0.1.0";
+        public const string Version = "1.0.0";
 
         public static KrisPlugin Instance { get; private set; }
 
@@ -32,8 +32,6 @@ namespace KrisMod
 
             Log.Init(Logger);
             Log.Info("Kris is waking up.");
-
-            KrisConfig.Init(Config);
 
             // Order matters: icons come from Assets, buffs use those icons, skills reference both,
             // and the body wires the finished skills onto the prefab.

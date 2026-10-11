@@ -134,7 +134,7 @@ namespace KrisMod.Components
 
             if (timerBar != null)
             {
-                float timeout = Mathf.Max(1f, KrisConfig.ActMenuTimeout.Value);
+                float timeout = Mathf.Max(1f, KrisTuning.ActMenuTimeout);
                 timerBar.fillAmount = Mathf.Clamp01(1f - (Time.time - openedAt) / timeout);
             }
         }

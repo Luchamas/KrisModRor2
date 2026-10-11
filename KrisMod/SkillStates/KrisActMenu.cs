@@ -66,7 +66,7 @@ namespace KrisMod.SkillStates
                 return;
             }
 
-            if (fixedAge >= Mathf.Max(1f, KrisConfig.ActMenuTimeout.Value))
+            if (fixedAge >= Mathf.Max(1f, KrisTuning.ActMenuTimeout))
             {
                 Close(refund: true);
                 return;

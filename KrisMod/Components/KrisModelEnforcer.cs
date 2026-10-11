@@ -94,7 +94,7 @@ namespace KrisMod.Components
             // The item display rules are still Loader's, with offsets authored for Loader's bones
             // (see KrisBody.ConfigureItemDisplays). Clearing the rule set when the prefab is
             // built has not always survived spawn, so it is re-asserted here.
-            if (characterModel != null && !Modules.KrisConfig.ShowItemDisplays.Value &&
+            if (characterModel != null && !Modules.KrisTuning.ShowItemDisplays &&
                 characterModel.itemDisplayRuleSet != null)
             {
                 characterModel.itemDisplayRuleSet = null;

@@ -37,10 +37,10 @@ namespace KrisMod.Modules
             Add(BodyDescription,
                 "Kris is a sword-and-shield fighter who stores up TENSION and spends it on their SOUL and their ACTs.<style=cSub>\n\n" +
                 "< ! > Standing near enemies and landing hits builds TP, and so does taking hits behind your shield.\n\n" +
-                "< ! > DEFEND blocks " + Percent(KrisConfig.DefendDamageReduction.Value) + " of the damage you take, " +
+                "< ! > DEFEND blocks " + Percent(KrisTuning.DefendDamageReduction) + " of the damage you take, " +
                 "but you cannot swing while the shield is up.\n\n" +
                 "< ! > Throw your SOUL at a wall or an enemy to be pulled straight to it. It costs " +
-                Mathf.RoundToInt(KrisConfig.SoulTensionCost.Value) + "% TP.\n\n" +
+                Mathf.RoundToInt(KrisTuning.SoulTensionCost) + "% TP.\n\n" +
                 "< ! > ACT freezes you in place and opens a menu of four ACTs. Pick one with the number " +
                 "keys 1-4, or jump to back out.\n\n</style>");
             Add(BodyOutro, "..and so they left, their SOUL still their own.");
@@ -59,22 +59,22 @@ namespace KrisMod.Modules
 
             Add(PrimaryName, "FIGHT");
             Add(PrimaryDescription,
-                "Slash with your sword for <style=cIsDamage>" + Percent(KrisConfig.SlashDamage.Value) +
+                "Slash with your sword for <style=cIsDamage>" + Percent(KrisTuning.SlashDamage) +
                 "</style> damage.");
 
             Add(SecondaryName, "DEFEND");
             Add(SecondaryDescription,
                 "Hold to raise your shield. While it is up, take <style=cIsUtility>" +
-                Percent(KrisConfig.DefendDamageReduction.Value) + " less damage</style>, and every hit you " +
-                "take grants <style=cIsUtility>" + Mathf.RoundToInt(KrisConfig.DefendTensionPerHit.Value) +
+                Percent(KrisTuning.DefendDamageReduction) + " less damage</style>, and every hit you " +
+                "take grants <style=cIsUtility>" + Mathf.RoundToInt(KrisTuning.DefendTensionPerHit) +
                 "% TP</style>. You stand your ground: no moving, jumping or attacking.");
 
             Add(UtilityName, "SOUL");
             Add(UtilityDescription,
-                "Costs <style=cIsUtility>" + Mathf.RoundToInt(KrisConfig.SoulTensionCost.Value) +
+                "Costs <style=cIsUtility>" + Mathf.RoundToInt(KrisTuning.SoulTensionCost) +
                 "% TP</style>. Hold to aim your SOUL, release to tear it out and throw it. " +
                 "Once it lands, you are <style=cIsUtility>pulled</style> to it, then catch it with a vertical cut for " +
-                "<style=cIsDamage>" + Mathf.RoundToInt(KrisConfig.SoulSlashDamage.Value * 100f) + "% damage</style>.");
+                "<style=cIsDamage>" + Mathf.RoundToInt(KrisTuning.SoulSlashDamage * 100f) + "% damage</style>.");
 
             Add(SpecialName, "ACT");
             Add(SpecialDescription,

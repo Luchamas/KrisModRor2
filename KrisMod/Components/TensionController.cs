@@ -25,7 +25,7 @@ namespace KrisMod.Components
         /// <summary>Current TP. Only meaningful on the authority.</summary>
         public float Tension { get; private set; }
 
-        public float MaxTension => Mathf.Max(1f, KrisConfig.TensionMax.Value);
+        public float MaxTension => Mathf.Max(1f, KrisTuning.TensionMax);
 
         public float Fraction => Mathf.Clamp01(Tension / MaxTension);
 
@@ -45,7 +45,7 @@ namespace KrisMod.Components
                 grazing = AnyEnemyWithinGrazeRadius();
             }
 
-            if (grazing) Add(KrisConfig.TensionGrazePerSecond.Value * Time.fixedDeltaTime);
+            if (grazing) Add(KrisTuning.TensionGrazePerSecond * Time.fixedDeltaTime);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace KrisMod.Components
         public void AddForHits(int hitCount)
         {
             if (hitCount <= 0) return;
-            Add(KrisConfig.TensionPerHit.Value * hitCount);
+            Add(KrisTuning.TensionPerHit * hitCount);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace KrisMod.Components
 
         private bool AnyEnemyWithinGrazeRadius()
         {
-            float radiusSqr = KrisConfig.TensionGrazeRadius.Value * KrisConfig.TensionGrazeRadius.Value;
+            float radiusSqr = KrisTuning.TensionGrazeRadius * KrisTuning.TensionGrazeRadius;
             Vector3 origin = body.corePosition;
             TeamIndex myTeam = body.teamComponent != null ? body.teamComponent.teamIndex : TeamIndex.Player;
 

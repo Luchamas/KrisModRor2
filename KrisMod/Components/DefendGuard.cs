@@ -46,7 +46,7 @@ namespace KrisMod.Components
         public void OnIncomingDamageServer(DamageInfo damageInfo)
         {
             if (!Raised || !Blockable(damageInfo.damageType)) return;
-            damageInfo.damage *= 1f - Mathf.Clamp01(KrisConfig.DefendDamageReduction.Value);
+            damageInfo.damage *= 1f - Mathf.Clamp01(KrisTuning.DefendDamageReduction);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace KrisMod.Components
 
             if (Time.time < nextPayout) return;
             nextPayout = Time.time + PayoutInterval;
-            tension.Add(KrisConfig.DefendTensionPerHit.Value);
+            tension.Add(KrisTuning.DefendTensionPerHit);
         }
 
         private static bool Blockable(DamageTypeCombo type) => (type.damageType & DamageType.BypassBlock) == 0;

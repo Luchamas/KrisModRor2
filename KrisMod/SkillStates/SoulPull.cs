@@ -74,14 +74,14 @@ namespace KrisMod.SkillStates
             if (origin == Vector3.zero) origin = SoulOrigin();
 
             float distance = Vector3.Distance(origin, target);
-            flightTime = Mathf.Max(MinFlightTime, distance / Mathf.Max(1f, KrisConfig.SoulSpeed.Value));
+            flightTime = Mathf.Max(MinFlightTime, distance / Mathf.Max(1f, KrisTuning.SoulSpeed));
 
             // Where Kris will end up: short of the SOUL, measured from the feet rather than the chest.
             Vector3 chestToFeet = transform.position - origin;
             Vector3 toTarget = target - origin;
             Vector3 stopPoint = target - toTarget.normalized * Mathf.Min(SoulAim.StandOff, toTarget.magnitude);
             float pullDistance = Vector3.Distance(transform.position, stopPoint + chestToFeet);
-            pullTime = pullDistance / Mathf.Max(1f, KrisConfig.SoulPullSpeed.Value);
+            pullTime = pullDistance / Mathf.Max(1f, KrisTuning.SoulPullSpeed);
 
             hand = FindModelChild("HandL");
             releasedFrom = origin;
@@ -114,7 +114,7 @@ namespace KrisMod.SkillStates
                     released = true;
                     releasedFrom = HandPosition();
                     flightTime = Mathf.Max(MinFlightTime, Vector3.Distance(releasedFrom, target) /
-                                                          Mathf.Max(1f, KrisConfig.SoulSpeed.Value));
+                                                          Mathf.Max(1f, KrisTuning.SoulSpeed));
                 }
 
                 float t = Mathf.Clamp01((fixedAge - ReleaseAt) / flightTime);
@@ -150,7 +150,7 @@ namespace KrisMod.SkillStates
             }
 
             pullDirection = toSoul / remaining;
-            characterMotor.velocity = pullDirection * KrisConfig.SoulPullSpeed.Value;
+            characterMotor.velocity = pullDirection * KrisTuning.SoulPullSpeed;
             LockFacing(pullDirection);
         }
 
@@ -277,7 +277,7 @@ namespace KrisMod.SkillStates
             {
                 Transform chest = FindModelChild("Chest");
                 float away = chest != null ? Vector3.Distance(soul.transform.position, chest.position) : 0f;
-                float back = Mathf.Clamp(away / Mathf.Max(1f, KrisConfig.SoulSpeed.Value), AbsorbTime, MaxReturnTime);
+                float back = Mathf.Clamp(away / Mathf.Max(1f, KrisTuning.SoulSpeed), AbsorbTime, MaxReturnTime);
                 soul.Absorb(chest, back);
             }
 
@@ -291,7 +291,7 @@ namespace KrisMod.SkillStates
 
                 if (isAuthority && pulling)
                 {
-                    characterMotor.velocity = pullDirection * (KrisConfig.SoulPullSpeed.Value * ExitSpeedFraction) +
+                    characterMotor.velocity = pullDirection * (KrisTuning.SoulPullSpeed * ExitSpeedFraction) +
                                               Vector3.up * ExitHop;
                     // At least the cuts' own hop, so it comes out the same whichever machine
                     // moves first this frame - the cuts' entry raises the climb to it, never past it.

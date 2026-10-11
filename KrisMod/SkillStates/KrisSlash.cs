@@ -50,7 +50,7 @@ namespace KrisMod.SkillStates
         {
             base.OnEnter();
 
-            duration = KrisConfig.SlashDuration.Value / attackSpeedStat;
+            duration = KrisTuning.SlashDuration / attackSpeedStat;
 
             StartAimMode(2f, false);
             if (characterBody != null) characterBody.SetAimTimer(1.5f);
@@ -62,7 +62,7 @@ namespace KrisMod.SkillStates
             PlayGesture(pose, 0.05f / Mathf.Max(attackSpeedStat, 0.1f), KrisAnimations.SlashA);
             SetPoseSpeed(attackSpeedStat);
 
-            attack = InitMeleeOverlap(KrisConfig.SlashDamage.Value, HitEffect,
+            attack = InitMeleeOverlap(KrisTuning.SlashDamage, HitEffect,
                                       GetModelTransform(), HitBoxGroupName);
             attack.procCoefficient = procCoefficient;
             attack.pushAwayForce = pushAwayForce;

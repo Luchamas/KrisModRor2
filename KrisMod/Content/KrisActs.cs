@@ -107,7 +107,7 @@ namespace KrisMod.Content
             {
                 Id = "PROCEED", Name = "PROCEED", Cost = 100f, Kind = ActKind.Attack, State = typeof(ProceedAct),
                 Description = "The nearest enemy in front of you dies. Rarely offered.",
-                RareChance = () => KrisConfig.ProceedChance.Value / 100f,
+                RareChance = () => KrisTuning.ProceedChance / 100f,
             },
         };
 

@@ -592,7 +592,7 @@ namespace KrisMod.SkillStates
     {
         internal const float Radius = 15f;
         internal const float StunTime = 3f;
-        internal static float Damage => KrisConfig.SlashDamage.Value;
+        internal static float Damage => KrisTuning.SlashDamage;
 
         protected override float Duration => 1.3f;
         protected override float StunRadius => Radius;

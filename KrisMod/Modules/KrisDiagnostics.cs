@@ -176,7 +176,7 @@ namespace KrisMod.Modules
             else
             {
                 Log.Info("FIGHT hitbox ready (" + group.hitBoxes.Length + " box, reach " +
-                         KrisConfig.SlashRange.Value + "m).");
+                         KrisTuning.SlashRange + "m).");
             }
         }
 

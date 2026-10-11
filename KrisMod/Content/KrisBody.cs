@@ -67,24 +67,24 @@ namespace KrisMod.Content
 
             if (KrisAssets.PortraitTexture != null) body.portraitIcon = KrisAssets.PortraitTexture;
 
-            body.baseMaxHealth = KrisConfig.BaseHealth.Value;
-            body.levelMaxHealth = Mathf.Round(KrisConfig.BaseHealth.Value * 0.3f);
+            body.baseMaxHealth = KrisTuning.BaseHealth;
+            body.levelMaxHealth = Mathf.Round(KrisTuning.BaseHealth * 0.3f);
             body.baseRegen = 1.5f;
             body.levelRegen = 0.2f;
             body.baseMaxShield = 0f;
             body.levelMaxShield = 0f;
 
-            body.baseDamage = KrisConfig.BaseDamage.Value;
-            body.levelDamage = KrisConfig.BaseDamage.Value * 0.2f;
+            body.baseDamage = KrisTuning.BaseDamage;
+            body.levelDamage = KrisTuning.BaseDamage * 0.2f;
             body.baseAttackSpeed = 1f;
             body.levelAttackSpeed = 0f;
             body.baseCrit = 1f;
             body.levelCrit = 0f;
 
-            body.baseArmor = KrisConfig.BaseArmor.Value;
+            body.baseArmor = KrisTuning.BaseArmor;
             body.levelArmor = 0f;
 
-            body.baseMoveSpeed = KrisConfig.BaseMoveSpeed.Value;
+            body.baseMoveSpeed = KrisTuning.BaseMoveSpeed;
             body.levelMoveSpeed = 0f;
             body.baseAcceleration = 80f;
             body.baseJumpPower = 15f;
@@ -212,7 +212,7 @@ namespace KrisMod.Content
         /// </summary>
         private static void ConfigureItemDisplays(Transform rig)
         {
-            if (rig == null || KrisConfig.ShowItemDisplays.Value) return;
+            if (rig == null || KrisTuning.ShowItemDisplays) return;
 
             var characterModel = rig.GetComponent<CharacterModel>();
             if (characterModel == null) return;
@@ -232,7 +232,7 @@ namespace KrisMod.Content
             Transform model = modelLocator.modelTransform;
             if (model == null) return;
 
-            float reach = Mathf.Max(1f, KrisConfig.SlashRange.Value);
+            float reach = Mathf.Max(1f, KrisTuning.SlashRange);
 
             // Centred half a reach ahead of the body, so the box spans from chest to full reach.
             AddHitBox(model, SkillStates.KrisSlash.HitBoxGroupName, "KrisSwordHitbox",
@@ -287,7 +287,7 @@ namespace KrisMod.Content
 
             GameObject instance = AttachCustomModel(rig, customModel, SkillStates.KrisAnimations.Idle);
 
-            bool ownRagdoll = KrisConfig.ModelRagdoll.Value &&
+            bool ownRagdoll = KrisTuning.ModelRagdoll &&
                               KrisRagdoll.Build(rig, instance.transform);
             KrisRig.MoveOntoModel(BodyPrefab.transform, rig, instance.transform);
             KrisRig.StripDonor(BodyPrefab.transform, rig, instance.transform, HolderName);
@@ -455,7 +455,7 @@ namespace KrisMod.Content
             Transform rig = displayModel != null ? displayModel.transform : DisplayPrefab.transform;
 
             GameObject instance = AttachCustomModel(rig, bodyModel,
-                SkillStates.KrisAnimations.SelectIntro, KrisConfig.DisplayModelScale.Value,
+                SkillStates.KrisAnimations.SelectIntro, KrisTuning.DisplayModelScale,
                 SkillStates.KrisAnimations.Select);
 
             // The same conversion as the body. Loader's display rig used to be held down at
@@ -481,7 +481,7 @@ namespace KrisMod.Content
             }
 
             Log.Info("Character-select mannequin built on Loader's display prefab at " +
-                     KrisConfig.DisplayModelScale.Value + "x scale.");
+                     KrisTuning.DisplayModelScale + "x scale.");
         }
 
         private static void CreateSurvivorDef()

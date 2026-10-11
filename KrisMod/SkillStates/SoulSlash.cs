@@ -105,7 +105,7 @@ namespace KrisMod.SkillStates
 
             if (!isAuthority) return;
 
-            attack = InitMeleeOverlap(KrisConfig.SoulSlashDamage.Value, KrisAssets.SlashHitEffect,
+            attack = InitMeleeOverlap(KrisTuning.SoulSlashDamage, KrisAssets.SlashHitEffect,
                                       GetModelTransform(), HitBoxGroupName);
             attack.procCoefficient = 1f;
             attack.pushAwayForce = 600f;

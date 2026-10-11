@@ -477,7 +477,7 @@ namespace KrisMod.Modules
         private static float Volume()
         {
             if (MutedByFocus()) return 0f;
-            return Mathf.Clamp01(KrisConfig.SoundVolume.Value) *
+            return Mathf.Clamp01(KrisTuning.SoundVolume) *
                    GameSlider("volume_master") * GameSlider("volume_sfx");
         }
 

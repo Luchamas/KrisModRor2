@@ -143,7 +143,7 @@ namespace KrisMod.Components
 
             Transform parent = hud.mainContainer != null ? hud.mainContainer.transform : hud.transform;
 
-            float barHeight = Mathf.Max(1f, KrisConfig.TpBarHeight.Value);
+            float barHeight = Mathf.Max(1f, KrisTuning.TpBarHeight);
             float width = barHeight * (frame.rect.width / frame.rect.height);
 
             root = new GameObject("KrisTensionBar", typeof(RectTransform));
@@ -153,7 +153,7 @@ namespace KrisMod.Components
             rootRect.anchorMin = new Vector2(0f, 0.5f);
             rootRect.anchorMax = new Vector2(0f, 0.5f);
             rootRect.pivot = new Vector2(0f, 0.5f);
-            rootRect.anchoredPosition = new Vector2(KrisConfig.TpBarLeftMargin.Value, 0f);
+            rootRect.anchoredPosition = new Vector2(KrisTuning.TpBarLeftMargin, 0f);
             rootRect.sizeDelta = new Vector2(width, barHeight);
 
             BuildFromArtwork(frame);
