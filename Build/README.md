@@ -1,7 +1,5 @@
 # Kris
 
-![Kris](https://raw.githubusercontent.com/Luchamas/KrisModRor2/main/Build/readme-icons/CharSelection.png)
-
 Play as **Kris** from the hit videogame DELTARUNE!
 
 Sword, shield, SOUL and ACT, all running on TP.

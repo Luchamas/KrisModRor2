@@ -18,8 +18,13 @@ namespace KrisMod.Components
     /// while a skill holds a pose of its own this leaves the animator alone, and when the skill gives
     /// Idle back mid-air, this puts them back into Air.
     ///
-    /// It runs on every client and reads only the motor's velocity, the body's facing and its
-    /// sprint flag, which the game already replicates, so nothing is sent.
+    /// It runs on every client and reads the body's velocity, facing, grounding and sprint flag,
+    /// so nothing is sent. ⚠ Of those, the velocity is NOT replicated: CharacterNetworkTransform
+    /// hands a remote body its position, aim, stick and grounding, and never touches
+    /// CharacterMotor.velocity, which sits at whatever it last was (zero, on a body that has
+    /// never had authority here). Read straight off the motor, every other player's Kris stood
+    /// in Idle sliding across the floor, and never jumped. On a body this machine does not
+    /// control, the velocity is measured off its position instead (<see cref="TrackRemoteVelocity"/>).
     /// </summary>
     public class KrisLocomotion : MonoBehaviour
     {
@@ -100,6 +105,27 @@ namespace KrisMod.Components
         /// </summary>
         private const float JumpGroundIgnore = 0.15f;
 
+        /// <summary>
+        /// Smoothing on a remote body's measured velocity, in seconds. Its position comes in as
+        /// snapshots, interpolated - steady between them, a kink at each - and this only has to
+        /// iron out the kinks: the blend's own Smoothing does the rest, and the Air blend and the
+        /// jump test want the vertical speed as fresh as it can be.
+        /// </summary>
+        private const float RemoteSmoothing = 0.05f;
+
+        /// <summary>
+        /// How long a remote body's position may hold still before it counts as stopped. Not one
+        /// frame: when the snapshots are applied per physics step, a frame rate above the physics
+        /// rate sees the same position two or three frames running while the body is moving.
+        /// </summary>
+        private const float RemoteStillTime = 0.1f;
+
+        /// <summary>
+        /// A remote body that "moved" faster than this was teleported - a stage start, a
+        /// teleporter, a snapshot catching up after a hitch - and the step is not a velocity.
+        /// </summary>
+        private const float RemoteTeleportSpeed = 150f;
+
         private CharacterBody body;
         private CharacterMotor motor;
         private CharacterDirection direction;
@@ -117,7 +143,6 @@ namespace KrisMod.Components
         private int jumpState;
         private int airState;
         private bool hasAir;
-        private bool wasGrounded = true;
         private int lastJumpCount;
         private float airTime;
         private float sinceJump = 1f;
@@ -200,12 +225,74 @@ namespace KrisMod.Components
             modelLocator = GetComponent<ModelLocator>();
         }
 
+        private Vector3 remoteVelocity;
+        private Vector3 remoteRaw;
+        private Vector3 lastPosition;
+        private bool hasLastPosition;
+        private float sinceMoved;
+
+        /// <summary>
+        /// The body's velocity: the motor's own where this machine moves the body, measured off its
+        /// position everywhere else, where the motor's is never written (see the class summary).
+        /// </summary>
+        private Vector3 Velocity
+        {
+            get
+            {
+                if (motor == null) return Vector3.zero;
+                return body == null || body.hasEffectiveAuthority ? motor.velocity : remoteVelocity;
+            }
+        }
+
+        /// <summary>
+        /// Measures a remote body's velocity off its position: each step it moves, over the time since
+        /// it last moved - not over one frame, since the position may only change once per physics
+        /// step - then lightly smoothed. Runs every frame whether or not the animator is up yet, so
+        /// the estimate is warm by the time it is.
+        /// </summary>
+        private void TrackRemoteVelocity(float dt)
+        {
+            if (body == null || body.hasEffectiveAuthority)
+            {
+                hasLastPosition = false;
+                return;
+            }
+
+            Vector3 position = transform.position;
+            if (!hasLastPosition)
+            {
+                lastPosition = position;
+                hasLastPosition = true;
+                sinceMoved = 0f;
+                remoteRaw = remoteVelocity = Vector3.zero;
+                return;
+            }
+
+            sinceMoved += dt;
+            Vector3 step = position - lastPosition;
+            if (step.sqrMagnitude > 1e-8f)
+            {
+                Vector3 raw = step / Mathf.Max(sinceMoved, 1e-4f);
+                if (raw.sqrMagnitude < RemoteTeleportSpeed * RemoteTeleportSpeed) remoteRaw = raw;
+                lastPosition = position;
+                sinceMoved = 0f;
+            }
+            else if (sinceMoved > RemoteStillTime)
+            {
+                remoteRaw = Vector3.zero;
+            }
+
+            remoteVelocity = Vector3.Lerp(remoteVelocity, remoteRaw, 1f - Mathf.Exp(-dt / RemoteSmoothing));
+        }
+
         private void Update()
         {
+            float dt = Time.deltaTime;
+            TrackRemoteVelocity(dt);
+
             if (!ResolveAnimator()) return;
             if (!animator.isActiveAndEnabled) return;
 
-            float dt = Time.deltaTime;
             move = Vector2.SmoothDamp(move, WantedMove(), ref moveVelocity, Smoothing, Mathf.Infinity, dt);
             float wantedSprint = body != null && body.isSprinting && move.sqrMagnitude > 0.01f ? 1f : 0f;
             sprint = Mathf.SmoothDamp(sprint, wantedSprint, ref sprintVelocity, Smoothing, Mathf.Infinity, dt);
@@ -236,7 +323,7 @@ namespace KrisMod.Components
             if (!hasAir || motor == null) return;
 
             bool grounded = motor.isGrounded;
-            float upSpeed = motor.velocity.y;
+            float upSpeed = Velocity.y;
             sinceJump += dt;
             airTime = grounded ? 0f : airTime + dt;
 
@@ -245,11 +332,14 @@ namespace KrisMod.Components
             // ⚠ The count alone is not a jump: DEFEND writes it to maxJumpCount every tick to spend
             // the jumps (KrisDefend.HoldGround), and reading that as a jump played Jump over the
             // shield. A real jump sets the vertical speed in the same step it counts, so both are asked.
+            // ⚠ "Left the ground" is any frame within LedgeGrace of it, not the one frame it happened:
+            // a remote body's grounding arrives in its snapshot while its speed is measured off the
+            // position after, so on the frame it lifts off it has not been seen rising yet.
             bool rising = upSpeed > JumpLiftSpeed;
+            bool tookOff = !grounded && airTime <= LedgeGrace;
             bool jumped = sinceJump > JumpGroundIgnore && rising &&
-                          (motor.jumpCount > lastJumpCount || (wasGrounded && !grounded));
+                          (motor.jumpCount > lastJumpCount || tookOff);
             lastJumpCount = motor.jumpCount;
-            wasGrounded = grounded;
             if (jumped) sinceJump = 0f;
 
             animator.SetFloat(airUpParameter, AirBlend(upSpeed));
@@ -306,7 +396,7 @@ namespace KrisMod.Components
         {
             if (motor == null || body == null) return Vector2.zero;
 
-            Vector3 velocity = motor.velocity;
+            Vector3 velocity = Velocity;
             velocity.y = 0f;
             float walk = Mathf.Max(0.01f, body.moveSpeed);
             float amount = Mathf.Clamp01(Mathf.InverseLerp(MoveFloor, MoveCeiling, velocity.magnitude / walk));

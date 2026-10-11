@@ -77,7 +77,11 @@ namespace KrisMod.Components
 
         private void Update()
         {
-            if (body == null || tension == null) return;
+            // The meter only counts on the machine that owns this Kris (TensionController is
+            // authority-local), so only there does it mean anything. A dead player spectating
+            // another player's Kris has a HUD targeting this body too, and would get a bar stuck
+            // at zero.
+            if (body == null || tension == null || !body.hasEffectiveAuthority) return;
 
             if (root == null)
             {

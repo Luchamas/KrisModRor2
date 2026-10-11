@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using RoR2;
 using UnityEngine;
 
@@ -86,10 +87,24 @@ namespace KrisMod.Components
         private int framesLeft = 10;
         private float recheckTimer;
 
+        /// <summary>
+        /// True on a character-select mannequin: a model with no CharacterBody above it. Every
+        /// player's mannequin is one, the local player's and those of the other players in the
+        /// lobby, which stand in the side slots.
+        ///
+        /// The other players' Kris was invisible there, while the local player's Kris was not. The
+        /// sweep in <see cref="Apply"/> only ran once a second, and anything that switched the
+        /// renderers off in between kept them off for most of that second. The mannequin has none
+        /// of a body's costs, so it is asserted every frame (see <see cref="LateUpdate"/>).
+        /// </summary>
+        private bool mannequin;
+        private ModelSkinController skinController;
+
         private void Start()
         {
             characterModel = GetComponent<CharacterModel>();
             custom = FindCustom(transform);
+            mannequin = GetComponentInParent<CharacterBody>() == null;
 
             // The item display rules are still Loader's, with offsets authored for Loader's bones
             // (see KrisBody.ConfigureItemDisplays). Clearing the rule set when the prefab is
@@ -111,6 +126,14 @@ namespace KrisMod.Components
 
             ourInfos = BuildInfos(custom.gameObject);
             RefreshWeaponRenderers();
+
+            // A skin applied after this Start (the select screen applies the loadout's skin from
+            // a coroutine) replaces baseRendererInfos with its own. Re-assert ours the moment it
+            // finishes instead of waiting for the next sweep.
+            skinController = GetComponent<ModelSkinController>();
+            if (skinController != null) skinController.onSkinApplied += OnSkinApplied;
+
+            if (mannequin) PrepareMannequin();
 
             string pose = startPose;
             var anim = custom.GetComponentInChildren<Animator>(true);
@@ -273,10 +296,63 @@ namespace KrisMod.Components
             return (sword.hidden && sword.Owns(r)) || (shield.hidden && shield.Owns(r));
         }
 
+        // disableFade is not public in this game version (it is read only in
+        // CharacterModel.UpdateForCamera), so it is set by reflection - compiled against, it fails.
+        private static readonly FieldInfo DisableFadeField =
+            typeof(CharacterModel).GetField("disableFade", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        /// <summary>
+        /// The mannequin-only settings. They apply to the model objects in the lobby only.
+        ///
+        /// CharacterModel fades a model out as the camera nears its hurtboxes, and switches every
+        /// renderer off once the fade reaches zero. The mannequin is a donor display prefab with
+        /// its hurtboxes stripped, so that fade has nothing sensible to measure. The fade is
+        /// therefore turned off: a mannequin is never something the camera is inside of.
+        ///
+        /// updateWhenOffscreen keeps the skinned meshes from being culled on the import-time
+        /// bounds. Those bounds were measured on a different rig in a different pose, and they are
+        /// checked against the view in the side slots at the edge of the frame, which is where the
+        /// other players' mannequins stand.
+        /// </summary>
+        private void PrepareMannequin()
+        {
+            if (characterModel != null)
+            {
+                if (DisableFadeField != null) DisableFadeField.SetValue(characterModel, true);
+                else Modules.Log.Warning("KrisModelEnforcer: CharacterModel has no 'disableFade' field in " +
+                                         "this game version - the lobby mannequin may fade out up close.");
+            }
+            foreach (SkinnedMeshRenderer smr in custom.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                smr.updateWhenOffscreen = true;
+            }
+        }
+
+        private void OnSkinApplied(int skinIndex) => Apply();
+
+        private void OnDestroy()
+        {
+            if (skinController != null) skinController.onSkinApplied -= OnSkinApplied;
+        }
+
+        /// <summary>
+        /// The mannequin's sweep, run after every Update. The donor's display components and the
+        /// skin coroutine have both run by then. See <see cref="mannequin"/>.
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (!mannequin) return;
+            if (custom != null && !custom.gameObject.activeSelf) custom.gameObject.SetActive(true);
+            Apply();
+        }
+
         private void Update()
         {
             UpdateWeapon(sword);
             UpdateWeapon(shield);
+
+            // The mannequin is swept every frame in LateUpdate instead.
+            if (mannequin) return;
 
             // The skin can be applied after us, so keep asserting for a few frames...
             if (framesLeft > 0)
@@ -320,6 +396,11 @@ namespace KrisMod.Components
         /// <summary>
         /// Kris's model instance under a model object: normally its direct child (mdlKris),
         /// searched for more widely only as a fallback.
+        ///
+        /// The fallback stays inside this model's own hierarchy. It used to search from
+        /// transform.root, and in the lobby every player's mannequin hangs under the same
+        /// scene root, so a miss there could return ANOTHER player's Kris. The sweep in Apply
+        /// then switched off every renderer of this one, as not being "ours".
         /// </summary>
         internal static Transform FindCustom(Transform modelTransform)
         {
@@ -334,7 +415,7 @@ namespace KrisMod.Components
                 if (sibling != null) return sibling;
             }
 
-            foreach (Transform t in modelTransform.root.GetComponentsInChildren<Transform>(true))
+            foreach (Transform t in modelTransform.GetComponentsInChildren<Transform>(true))
             {
                 if (t.name == want) return t;
             }

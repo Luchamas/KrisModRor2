@@ -480,8 +480,30 @@ namespace KrisMod.Content
                           "screen will fail to apply a skin to it.");
             }
 
+            ClaimPreviewController();
+
             Log.Info("Character-select mannequin built on Loader's display prefab at " +
                      KrisTuning.DisplayModelScale + "x scale.");
+        }
+
+        /// <summary>
+        /// Takes the display's loadout-preview controller off Loader.
+        ///
+        /// It came with the clone still naming LoaderBody as its body and holding Loader's skill
+        /// and skin responses: UnityEvents that switch Loader's gauntlets and skin parts on and
+        /// off. The menu runs them on every mannequin when it appears, and again for the local
+        /// player whenever their loadout changes, so the local player's mannequin and everyone
+        /// else's did not go through the same calls. Kris has no parts to swap, so none of
+        /// Loader's responses may touch this model, on any player's mannequin.
+        /// </summary>
+        private static void ClaimPreviewController()
+        {
+            var preview = DisplayPrefab.GetComponentInChildren<CharacterSelectSurvivorPreviewDisplayController>(true);
+            if (preview == null) return;
+
+            preview.bodyPrefab = BodyPrefab;
+            preview.skillChangeResponses = new CharacterSelectSurvivorPreviewDisplayController.SkillChangeResponse[0];
+            preview.skinChangeResponses = new CharacterSelectSurvivorPreviewDisplayController.SkinChangeResponse[0];
         }
 
         private static void CreateSurvivorDef()

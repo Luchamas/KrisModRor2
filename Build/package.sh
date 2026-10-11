@@ -57,6 +57,14 @@ mkdir -p "$STAGE/plugins/KrisMod/Assets"
 cp "$BUNDLE" "$STAGE/plugins/KrisMod/Assets/"
 echo "    included asset bundle"
 
+# The ACT menu's DELTARUNE font, a bundle of its own (KrisSetup.BuildFont). The plugin falls back
+# to the HUD font without it, so a zip that forgets it runs fine and just looks wrong - 1.0.0
+# shipped that way.
+FONT="$ROOT/KrisUnityProject/AssetBundles/Font/krisfont"
+[ -f "$FONT" ] || { echo "!! $FONT not found - run KrisSetup.BuildFont first"; exit 1; }
+cp "$FONT" "$STAGE/plugins/KrisMod/Assets/"
+echo "    included font bundle"
+
 mkdir -p "$DIST"
 ZIP="$DIST/KrisMod-$VERSION.zip"
 rm -f "$ZIP"
