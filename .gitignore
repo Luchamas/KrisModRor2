@@ -1,0 +1,27 @@
+# Build output
+KrisMod/bin/
+KrisMod/obj/
+Build/stage/
+Build/dist/
+
+# The model and the art pipeline stay local until the model's licence is confirmed: the mod
+# ships the model only inside the compiled asset bundle.
+*.blend
+*.blend1
+KrisRig/previews/
+KrisUnityProject/
+
+# Reference assemblies are copied from the game install; they are not ours to redistribute.
+libs/
+
+# Editors
+.vs/
+.idea/
+*.user
+
+# Local-only: the art pipeline, an old copy of the assets (the mod uses KrisMod/Assets), tooling
+# state and logs. The repository holds only what builds and packages the mod.
+KrisRig/
+/Assets/
+.blender-toolkit/
+*.log

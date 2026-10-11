@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>KrisMod</AssemblyName>
+    <RootNamespace>KrisMod</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Version>0.1.0</Version>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugType>portable</DebugType>
+    <!-- The game assemblies are full-framework; silence the noise they generate. -->
+    <NoWarn>$(NoWarn);CS0618;CS0649;CS0414;CS1701;CS1702;MSB3277</NoWarn>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Company>KrisMod</Company>
+    <Product>Kris (DELTARUNE) Survivor</Product>
+
+    <!-- Set to the Risk of Rain 2 folder to auto-deploy on build. -->
+    <RoR2Dir>C:\Program Files (x86)\Steam\steamapps\common\Risk of Rain 2</RoR2Dir>
+    <DeployOnBuild Condition="'$(DeployOnBuild)' == ''">true</DeployOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="$(MSBuildThisFileDirectory)..\libs\game\*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(MSBuildThisFileDirectory)..\libs\bepinex\*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(MSBuildThisFileDirectory)..\libs\r2api\*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="DeployToGame" AfterTargets="Build"
+          Condition="'$(DeployOnBuild)' == 'true' AND Exists('$(RoR2Dir)\BepInEx\plugins')">
+    <PropertyGroup>
+      <PluginDir>$(RoR2Dir)\BepInEx\plugins\KrisMod</PluginDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(PluginDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDir)" ContinueOnError="true" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb" DestinationFolder="$(PluginDir)" ContinueOnError="true" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" />
+    <!-- Voice clips and images ship as loose files the plugin reads at startup. -->
+    <ItemGroup>
+      <SoundFiles Include="$(MSBuildThisFileDirectory)Assets\Sounds\**\*.wav" />
+      <IconFiles Include="$(MSBuildThisFileDirectory)Assets\Icons\**\*.*" />
+      <HudFiles Include="$(MSBuildThisFileDirectory)Assets\Hud\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SoundFiles)" DestinationFolder="$(PluginDir)\Assets\Sounds\%(RecursiveDir)" ContinueOnError="true" Condition="'@(SoundFiles)' != ''" />
+    <Copy SourceFiles="@(IconFiles)" DestinationFolder="$(PluginDir)\Assets\Icons\%(RecursiveDir)" ContinueOnError="true" Condition="'@(IconFiles)' != ''" />
+    <Copy SourceFiles="@(HudFiles)" DestinationFolder="$(PluginDir)\Assets\Hud\%(RecursiveDir)" ContinueOnError="true" Condition="'@(HudFiles)' != ''" />
+    <Message Importance="high" Text="Kris -&gt; $(PluginDir)" />
+  </Target>
+
+</Project>
