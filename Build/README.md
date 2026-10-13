@@ -32,9 +32,9 @@ Sword, shield, SOUL and ACT, all running on TP.
 
 ## Multiplayer
 
-Everyone in the lobby needs Kris at the same version, and **the same mod list**. Online, the game identifies characters, skills and items by number rather than by name, so a mod that only some players have shifts those numbers: the others get the wrong character instead of Kris, or the wrong skills, and the log fills with errors from enemies and shrines that have nothing to do with Kris.
+Everyone in the lobby needs Kris at the same version, and **the same mod list**. Online, the game identifies characters, skills and items by number rather than by name, so a mod that only some players have shifts those numbers, and a player whose numbers differ would get the wrong character instead of Kris, or the wrong skills.
 
-The easy way to match is to export your r2modman profile as a code and have everyone import it. To check, open `BepInEx/LogOutput.log` on each PC and find the line starting with `Multiplayer check:`. It must be identical for every player.
+So Kris refuses that player at the door: the game shows a **mod mismatch** and lists the host's mods, including one called `com.deltarune.KrisMod.content` followed by a code. The easy fix is to export your r2modman profile as a code and have everyone import it. To compare, open `BepInEx/LogOutput.log` on each PC and find the line starting with `Multiplayer check:`. Its content code must be the same for every player.
 
 Check out my other mod: the [Flowery Character Mod](https://thunderstore.io/c/riskofrain2/p/TeamLuchamas/FloweryMod/)!
 

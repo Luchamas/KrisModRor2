@@ -46,6 +46,7 @@ namespace KrisMod
             KrisSkills.RegisterEntityStates();
             KrisBody.Init();
             KrisDiagnostics.Init();
+            ContentCheck.Init();
             Components.KrisMenuSounds.Spawn();
 
             Log.Info("Kris is ready. It's what they call \"you.\"");
