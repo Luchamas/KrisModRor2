@@ -28,7 +28,8 @@ namespace KrisMod.Content
             ContentAddition.AddEntityState<KrisDefend>(out added);
             ContentAddition.AddEntityState<SoulAim>(out added);
             ContentAddition.AddEntityState<SoulPull>(out added);
-            ContentAddition.AddEntityState<SoulSlash>(out added);            ContentAddition.AddEntityState<KrisActMenu>(out added);
+            ContentAddition.AddEntityState<SoulSlash>(out added);
+            ContentAddition.AddEntityState<KrisActMenu>(out added);
             ContentAddition.AddEntityState<ActWeaponLock>(out added);
             ContentAddition.AddEntityState<KrisSpawnState>(out added);
             KrisActs.RegisterStates();

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Reflection;
 using KrisMod.Content;
 using UnityEngine;
 using RoR2;
@@ -5,7 +7,8 @@ using RoR2;
 namespace KrisMod.Modules
 {
     /// <summary>
-    /// Reports, once the catalogs are built, whether Kris actually made it in.
+    /// Reports, once the catalogs are built, whether Kris actually made it in - and whether this
+    /// game numbers its content the way the other players' games do (see ReportNetworkCatalogs).
     ///
     /// Content registration failures in RoR2 are usually silent - the survivor simply is not in
     /// the menu - so this turns "they are missing" into a line in the log that says why.
@@ -92,6 +95,81 @@ namespace KrisMod.Modules
             ReportModelComponents();
             ReportSkins(bodyIndex);
             Sounds.ReportAudioState();
+            ReportNetworkCatalogs(bodyIndex);
+        }
+
+        private static readonly FieldInfo StateTypesField =
+            typeof(EntityStateCatalog).GetField("stateIndexToType", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+        /// <summary>
+        /// The one line every player in a lobby must see word for word, or multiplayer breaks in
+        /// ways that look like anything but this.
+        ///
+        /// Online, the game does not name bodies, entity states, items or buffs: it sends their
+        /// index in its catalogs. Picking Kris sends "body #N"; a slash sends "state #M". Each game
+        /// builds its catalogs from its own install, so a mod one player has and another lacks - or
+        /// a different version of one - shifts the indices after it, and the other game reads a
+        /// valid number that means something else. Nothing throws where the mistake is made, only
+        /// where the wrong thing runs. That is the reading of the host log from a two-Kris lobby that
+        /// this was written for: a Solus Wing heat pod (HeaterPodController.Awake) spawned as a
+        /// player's body on respawn, and Clay Templar's FireSonicBoom and a Shrine of Rebirth state
+        /// decoded from the client's own state messages. None of those stack traces passes through
+        /// this mod.
+        ///
+        /// R2API turns a lobby away when R2API mods differ, but only mods that hard-depend on R2API
+        /// are on its list, so the rest can differ unnoticed. Two players whose lines here differ
+        /// are not running the same content, whatever their mod managers say.
+        /// </summary>
+        private static void ReportNetworkCatalogs(BodyIndex krisBody)
+        {
+            var bodies = new List<string>();
+            for (int i = 0; i < BodyCatalog.bodyCount; i++) bodies.Add(BodyCatalog.GetBodyName((BodyIndex)i));
+
+            var items = new List<string>();
+            for (int i = 0; i < ItemCatalog.itemCount; i++)
+            {
+                ItemDef item = ItemCatalog.GetItemDef((ItemIndex)i);
+                items.Add(item != null ? item.name : null);
+            }
+
+            var buffs = new List<string>();
+            for (int i = 0; i < BuffCatalog.buffCount; i++)
+            {
+                BuffDef buff = BuffCatalog.GetBuffDef((BuffIndex)i);
+                buffs.Add(buff != null ? buff.name : null);
+            }
+
+            // Read straight off the catalog: it has no public count, and the order is the point.
+            var stateTypes = StateTypesField != null ? StateTypesField.GetValue(null) as System.Type[] : null;
+            string states = "unreadable (EntityStateCatalog.stateIndexToType is gone)";
+            string fightState = "?";
+            if (stateTypes != null)
+            {
+                var names = new List<string>();
+                foreach (System.Type type in stateTypes) names.Add(type != null ? type.FullName : null);
+                states = Fingerprint(names);
+                fightState = "#" + System.Array.IndexOf(stateTypes, typeof(SkillStates.KrisSlash));
+            }
+
+            Log.Info("Multiplayer check: bodies " + Fingerprint(bodies) + ", entity states " + states +
+                     ", items " + Fingerprint(items) + ", buffs " + Fingerprint(buffs) +
+                     "; Kris is body #" + (int)krisBody + ", FIGHT is state " + fightState + ". " +
+                     "Every player in a lobby must log this exact line - if theirs differs, their mods " +
+                     "or game version differ, and the game will hand them the wrong characters and skills.");
+        }
+
+        /// <summary>How many names, and an FNV-1a hash of all of them in catalog order.</summary>
+        private static string Fingerprint(List<string> names)
+        {
+            uint hash = 2166136261;
+            foreach (string name in names)
+            {
+                string s = name ?? string.Empty;
+                for (int i = 0; i < s.Length; i++) hash = (hash ^ s[i]) * 16777619;
+                // A separator, so ["ab", "c"] and ["a", "bc"] do not hash alike.
+                hash = (hash ^ '\n') * 16777619;
+            }
+            return names.Count + " [" + hash.ToString("X8") + "]";
         }
 
         /// <summary>

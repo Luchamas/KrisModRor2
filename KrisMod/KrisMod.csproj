@@ -5,7 +5,8 @@
     <AssemblyName>KrisMod</AssemblyName>
     <RootNamespace>KrisMod</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <Version>1.0.0</Version>
+    <!-- Same as KrisPlugin.Version and Build/manifest.json. -->
+    <Version>1.0.2</Version>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DebugType>portable</DebugType>
     <!-- The game assemblies are full-framework; silence the noise they generate. -->

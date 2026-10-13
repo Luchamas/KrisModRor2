@@ -30,6 +30,12 @@ Sword, shield, SOUL and ACT, all running on TP.
 | **UNLEASH** | 80% | Your SOUL blazes for **500%** damage, stunning enemies within 30m for 6 seconds. Flying enemies are slammed to the ground and rooted for 15 seconds. |
 | **PROCEED** | 100% | The nearest enemy in front of you dies. *Rarely offered.* |
 
+## Multiplayer
+
+Everyone in the lobby needs Kris at the same version, and **the same mod list**. Online, the game identifies characters, skills and items by number rather than by name, so a mod that only some players have shifts those numbers: the others get the wrong character instead of Kris, or the wrong skills, and the log fills with errors from enemies and shrines that have nothing to do with Kris.
+
+The easy way to match is to export your r2modman profile as a code and have everyone import it. To check, open `BepInEx/LogOutput.log` on each PC and find the line starting with `Multiplayer check:`. It must be identical for every player.
+
 Check out my other mod: the [Flowery Character Mod](https://thunderstore.io/c/riskofrain2/p/TeamLuchamas/FloweryMod/)!
 
 ## Credits

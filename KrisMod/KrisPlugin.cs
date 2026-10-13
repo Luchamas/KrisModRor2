@@ -7,14 +7,18 @@ namespace KrisMod
 {
     /// <summary>
     /// Adds Kris, the human hero of DELTARUNE, as a playable survivor.
+    ///
+    /// ⚠ The R2API modules below are the same list as the dependencies in Build/manifest.json,
+    /// which is what Thunderstore and the mod managers actually install. Change both: a module
+    /// only named here is never installed, and a player without it never loads Kris. Only what the
+    /// code uses belongs in either - Core (NetworkCompatibility), ContentManagement
+    /// (ContentAddition), Prefab, Language and RecalculateStats.
     /// </summary>
     [BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.bepis.r2api.content_management", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.bepis.r2api.prefab", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.bepis.r2api.language", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.bepis.r2api.recalculatestats", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("com.bepis.r2api.networking", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.bepis.r2api.skills", BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [BepInPlugin(Guid, ModName, Version)]
     public class KrisPlugin : BaseUnityPlugin
@@ -22,7 +26,7 @@ namespace KrisMod
         public const string Author = "deltarune";
         public const string ModName = "KrisMod";
         public const string Guid = "com." + Author + "." + ModName;
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
 
         public static KrisPlugin Instance { get; private set; }
 
